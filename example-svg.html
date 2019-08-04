@@ -1,0 +1,28 @@
+<html>
+    <head></head>
+    <body>
+        <div id="mainSvg">
+
+        </div>
+    </body>
+    <script>
+        var startTime = new Date()
+        console.log("Start time >> " + startTime.getHours() + ":" + startTime.getMinutes() + ":" + startTime.getSeconds())
+
+        for (var i = 0; i < 10000; i++) {
+            var svgHtml = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+            svgHtml.setAttribute("id", "svg_" + i)
+            svgHtml.setAttribute("width", "100")
+            svgHtml.setAttribute("height", "50")
+            document.getElementById("mainSvg").appendChild(svgHtml);
+            var rectHtml = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rectHtml.setAttribute("width", "100")
+            rectHtml.setAttribute("height", "50")
+            rectHtml.setAttribute("style", "fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)")
+            document.getElementById("svg_" + i).appendChild(rectHtml);
+        }
+
+        var endTime = new Date()
+        console.log("End time >> " + endTime.getHours() + ":" + endTime.getMinutes() + ":" + endTime.getSeconds())
+    </script>
+</html>
