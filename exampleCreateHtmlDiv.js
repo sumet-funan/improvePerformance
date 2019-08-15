@@ -3,10 +3,6 @@ var zoomp = 1;
 var stateExpand = false;
 var defaultTheme = "Classic";
 var IgnorePnKey = "NO_CUST_CFG";
-var loopNumber = 0;
-var textCondition = "Use case : racking >> base_chassis_view >> rear_view >> front_view";
-var trRearView;
-var trBaseChassisView;
 
 function DemoCreateHtmlDiv(){
     GetJson();
@@ -35,8 +31,6 @@ function GetJson(){
             console.log("The duration time >> " + (endTime - startTime) / 1000 + "s")
             $('#endLabel').html("End time >> " + endTime.getHours() + ":" + endTime.getMinutes() + ":" + endTime.getSeconds());
             $('#durationTime').html("The duration time >> " + (endTime - startTime) / 1000 + "s");
-            $('#allRow').html("Number of loops >> " + loopNumber + " round");
-            $('#textCondition').html(textCondition);
         } else {
             console.log('error')
         }
@@ -51,16 +45,13 @@ function CreateHTMLDIV(itg, isLabelLeft) {
     di.attr('border', '1');
     $('#main-html').append(di);
     if (itg.Type == "side_by_side") {
-        
         var tr = $('<tr />');
         for (p of itg.Position) {
-            loopNumber++;
             var td = $('<td />');
             td.attr('remark', 'slot-info');
             td.click(p, ExpandDetail(p));
             var mat = p.Material;
             for (iitg of mat.Integate) {
-                loopNumber++;
                 td.append(DeviceContent(p, mat));
                 td.append(CreateHTMLDIV(iitg));
             }
@@ -69,17 +60,14 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         di.append(tr);
     }
     else if (itg.Type == "racking") {
-        
         var slotPrefix = itg.Type + "-slot-number";
         var maxSlot = parseInt(itg.Max_Slots);
         if (maxSlot != 0) {
             di.attr('max-slot', maxSlot);
             for (let i = maxSlot; i > 0; i--) {
-                loopNumber++;
                 di.append(CreateSlot(i - 1, isLabelLeft));
             }
             for (p of itg.Position) {
-                loopNumber++;
                 var mat = p.Material;
                 var startSlot = parseInt(p.Start_Slot);
                 var usedSlot = parseInt(p.Used_Slots);
@@ -87,7 +75,6 @@ function CreateHTMLDIV(itg, isLabelLeft) {
                 var selectedSlot = di.find('[' + slotPrefix + '=' + slotNumber + ']');
                 selectedSlot.attr('rowspan', usedSlot);
                 for (let j = maxSlot; j > 0; j--) {
-                    loopNumber++;
                     if (j < slotNumber && j >= startSlot) {
                         di.find('[' + slotPrefix + '=' + j + ']').remove();
                         var nextIntg = di.find('[' + slotPrefix + '=' + (j + 1) + ']').empty();
@@ -97,7 +84,6 @@ function CreateHTMLDIV(itg, isLabelLeft) {
                             nextIntg.addClass("HasComplex");
                         }
                         for (iitg of mat.Integate) {
-                            loopNumber++;
                             nextIntg.append(CreateHTMLDIV(iitg));
                         }
                     }
@@ -106,7 +92,6 @@ function CreateHTMLDIV(itg, isLabelLeft) {
                     selectedSlot.empty().append(DeviceContent(p, mat));
                     selectedSlot.unbind().click(p, ExpandDetail(p));
                     for (iitg of mat.Integate) {
-                        loopNumber++;
                         selectedSlot.append(CreateHTMLDIV(iitg));
                     }
                 }
@@ -116,7 +101,6 @@ function CreateHTMLDIV(itg, isLabelLeft) {
                     var selectedSlotlabel = di.find('[' + llbSlotProfix + '=' + slotNumber + ']');
                     selectedSlotlabel.attr('rowspan', usedSlot);
                     for (let j = maxSlot; j > 0; j--) {
-                        loopNumber++;
                         if (j < slotNumber && j >= startSlot) {
                             di.find('[' + llbSlotProfix + '=' + j + ']').remove();
                             var nextIntg = di.find('[' + llbSlotProfix + '=' + (j + 1) + ']').empty();
@@ -130,7 +114,6 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         else {
             var rack_index = 0;
             for (p of itg.Position) {
-                loopNumber++;
                 var mat = p.Material;
                 di.append(CreateSlot(rack_index));
                 var nextIntg = di.find('[' + slotPrefix + '=' + (rack_index) + ']').empty();
@@ -141,17 +124,14 @@ function CreateHTMLDIV(itg, isLabelLeft) {
                     nextIntg.addClass("HasComplex");
                 }
                 for (iitg of mat.Integate) {
-                    loopNumber++;
                     nextIntg.append(CreateHTMLDIV(iitg));
                 }
             }
         }
     }
     else if (itg.Type == "XIOX") {
-        
         var tr = $('<tr />');
         for (p of itg.Position) {
-            loopNumber++;
             var td = $('<td />');
             td.attr('remark', 'slot-info');
             td.click(p, ExpandDetail(p));
@@ -161,7 +141,6 @@ function CreateHTMLDIV(itg, isLabelLeft) {
             }
             td.append(DeviceContent(p, mat));
             for (iitg of mat.Integate) {
-                loopNumber++;
                 td.append(CreateHTMLDIV(iitg));
             }
             tr.append(td);
@@ -169,15 +148,12 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         di.append(tr);
     }
     else if (itg.Type == "io_cage") {
-        
         var slotPrefix = itg.Type + "-slot-number";
         var yxSlot = itg.Max_Slots.split(',');
         var maxRow = yxSlot[0] - 1;
         for (let i = 0; i < parseInt(yxSlot[0]); i++) {
-            loopNumber++;
             var tr = $('<tr />');
             for (let j = 0; j < parseInt(yxSlot[1]); j++) {
-                loopNumber++;
                 var td = $('<td />');
                 td.attr(slotPrefix, i + "," + j);
                 td.attr('remark', 'slot-info');
@@ -193,7 +169,6 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         RenderToSlot(itg, di, maxRow, slotPrefix);
     }
     else if (itg.Type == "front_view") {
-        
         var slotPrefix = itg.Type + "-slot-number";
         var caption = $('<caption />');
         var content = $('<div />');
@@ -204,13 +179,11 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         var yxSlot = itg.Max_Slots.split(',');
         var maxRow = yxSlot[0] - 1;
         for (let i = maxRow; i >= -1; i--) {
-            loopNumber++;
             var tr = $('<tr />');
             var td = $('<td />').text((i == -1 ? "" : i));
             td.attr('remark', 'slot-label');
             tr.append(td);
             for (let j = 0; j < yxSlot[1]; j++) {
-                loopNumber++;
                 var tdl = $('<td />');
                 tdl.attr('remark', 'slot-info');
                 tdl.click(ExpandDetail());
@@ -233,18 +206,19 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         RenderToSlot(itg, di, maxRow, slotPrefix);
     }
     else if (itg.Type == "blade_view" || itg.Type == "base_chassis_view") {
-        
         var slotPrefix = itg.Type + "-slot-number";
         var yxSlot = itg.Max_Slots.split(',');
         var maxRow = yxSlot[0] - 1;
         for (let i = maxRow; i >= -1; i--) {
-            loopNumber++;
             var tr = $('<tr />');
+            tr.attr('class', 'empty-slot');
+            if (i == maxRow || i == -1) {
+                tr.attr('class', 'used-slot');
+            }
             var td = $('<td />').text((i == -1 ? "" : i));
             td.attr('remark', 'slot-label');
             tr.append(td);
             for (let j = 0; j < yxSlot[1]; j++) {
-                loopNumber++;
                 var tdl = $('<td />');
                 tdl.attr('remark', 'slot-info');
                 tdl.click(ExpandDetail());
@@ -265,7 +239,6 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         RenderToSlot(itg, di, maxRow, slotPrefix);
     }
     else if (itg.Type == "rear_view") {
-        
         var slotPrefix = itg.Type + "-slot-number";
         var caption = $('<caption />');
         var content = $('<div />');
@@ -276,13 +249,11 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         var yxSlot = itg.Max_Slots.split(',');
         var maxRow = yxSlot[0] - 1;
         for (let i = maxRow; i >= -1; i--) {
-            loopNumber++;
             var tr = $('<tr />');
             var td = $('<td />').text((i == -1 ? "" : i));
             td.attr('remark', 'slot-label');
             tr.append(td);
             for (let j = 0; j < yxSlot[1]; j++) {
-                loopNumber++;
                 var tdl = $('<td />');
                 tdl.attr('remark', 'slot-info');
                 tdl.click(ExpandDetail());
@@ -302,60 +273,11 @@ function CreateHTMLDIV(itg, isLabelLeft) {
         }
         RenderToSlot(itg, di, maxRow, slotPrefix);
     }
-    else if (itg.Type == "rear_view_new") {
-
-        var slotPrefix = itg.Type + "-slot-number";
-        var caption = $('<caption />');
-        var content = $('<div />');
-        content.text('Rear View');
-        content.attr('remark', 'slot-content');
-        caption.append(content);
-        di.append(caption);
-        var yxSlot = itg.Max_Slots.split(',');
-        var maxRow = yxSlot[0] - 1;
-        for (let i = maxRow; i >= -1; i--) {
-            loopNumber++;
-            if (trRearView && i > -1) {
-                var tdRearView = $('#' + slotPrefix + "-" + (i + 1));
-                tdRearView.attr('id', slotPrefix + "-" + i);
-                tdRearView.text((i == -1 ? "" : i));
-                di.append(trRearView);
-            }
-            else {
-                trRearView = $('<tr />');
-                var td = $('<td />').text((i == -1 ? "" : i));
-                td.attr('id', slotPrefix + "-" + i);
-                td.attr('remark', 'slot-label');
-                trRearView.append(td);
-                for (let j = 0; j < yxSlot[1]; j++) {
-                    loopNumber++;
-                    var tdl = $('<td />');
-                    tdl.attr('remark', 'slot-info');
-                    tdl.click(ExpandDetail());
-                    var content = $('<div />');
-                    content.attr('remark', 'slot-content');
-                    if (i == -1) {
-                        tdl.attr('remark', 'slot-label');
-                        content.text(j);
-                    } else {
-                        tdl.attr('id', slotPrefix + "-" + i);
-                        tdl.attr(slotPrefix, i + "," + j)
-                        content.text(blankLabel);
-                    }
-                    tdl.append(content);
-                    trRearView.append(tdl);
-                }
-                di.append(trRearView);
-            }
-        }
-        RenderToSlot(itg, di, maxRow, slotPrefix);
-    }
     return di;
 }
 
 function ExpandDetail(data) {
     return function () {
-        console.log("ExpandDetail")
         if (data.Material.WorkObject) {
             window.open('/SpManagement/C2B/C2BOperation?wo=' + data.Material.WorkObject, '_blank');
         }
@@ -405,7 +327,6 @@ function BildingInfomation(data) {
     if (undefined !== data.MaterialTranslated && data.MaterialTranslated.length) {
         var labels = p.Slot_Label.split(':');
         for (let i = 0; i < p.MaterialTranslated.length; i++) {
-            loopNumber++;
             trans += labels[i] + " : " + p.MaterialTranslated[i].No;
             if (i < p.MaterialTranslated.length) {
                 trans += "<br/>";
@@ -433,7 +354,6 @@ function BildingInfomation(data) {
         }
     }, 100);
     for (iitg of mat.Integate) {
-        loopNumber++;
         var contentdd = $('<div/>');
         var content = $('<div />');
         content.append(mat.Desc);
@@ -452,7 +372,6 @@ function BildingInfomation(data) {
     //view.find('[remark=slot-table-detail]').addClass('hide'); 
     var childWos = view.find('[remark=slot-table-detail]');
     for (ch of childWos) {
-        loopNumber++;
         var tch = $(ch).closest("td[remark='slot-info']");
         var htch = tch.find('div[w-obj]');
         if (htch.length > 0) {
@@ -460,7 +379,6 @@ function BildingInfomation(data) {
         } else {
             var tchL = tch.children("div[remark='slot-content']");
             for (tchli of tchL) {
-                loopNumber++;
                 var nli = $(tchli).clone();
                 view.append(nli);
                 var vli = $(tchli).closest("td[remark='slot-info']").children("table[remark='slot-table-detail']");
@@ -474,7 +392,6 @@ function BildingInfomation(data) {
 
     var clickable = view.find('[remark=slot-info]');
     for (c of clickable) {
-        loopNumber++;
         var cc = $._data(c, 'events');
         var dataClick = cc.click[0].data;
         $(c).unbind().click(ExpandDetailView(dataClick));
@@ -501,7 +418,6 @@ function clearInfomation() {
 function setCSSSelection() {
     var allContents = $('[remark=slot-content]');
     for (c of allContents) {
-        loopNumber++;
         var text = $(c).text();
         if (text != blankLabel && text.length > 1) {
             var parent = $(c).parent();
@@ -549,7 +465,6 @@ function CreateSlot(slotIndex, isLabelLeft) {
 
 function RenderToSlot(itg, di, maxRow, prefix) {
     for (p of itg.Position) {
-        loopNumber++;
         if (p.Slot_Type == "coherent") {
             CreateCoherent(p, di, maxRow, prefix);
         }
@@ -568,7 +483,6 @@ function RemoveDeepLevel(liid) {
     var liList = $('#select-layer').children();
     var fRemoveNext = false;
     for (lis of liList) {
-        loopNumber++;
         if (fRemoveNext) {
             $(lis).remove()
         }
@@ -633,6 +547,7 @@ function CreateCoherent(p, di, parentMaxRow, prefix) {
     var usedSlot = p.Used_Slots.split(':');
     if (usedSlot.length == 1) { //will render like discreate  
         CreateDiscrete(p, di, prefix);
+
     }
     else if (usedSlot.length == 2) {
         var startSlot = usedSlot[0].split(','), slotNumber = usedSlot[1].split(',');
@@ -640,49 +555,62 @@ function CreateCoherent(p, di, parentMaxRow, prefix) {
         var SN0 = parseInt(slotNumber[0]), SN1 = parseInt(slotNumber[1]);
         if (SN0 == SS0 && SN1 != SS1) { // horizontal
             var selectSlot = di.find('[' + prefix + '="' + usedSlot[0] + '"]');
+            var parentSelectSlot = selectSlot.parent();
+            parentSelectSlot.attr('class', 'used-slot');
             selectSlot.attr('colspan', SN1 - SS1 + 1);
             for (let j = SS1 + 1; j < SN1 + 1; j++) {
-                loopNumber++;
                 di.find('[' + prefix + '="' + SN0 + ',' + j + '"]').remove();
                 var nextIntg = di.find('[' + prefix + '="' + usedSlot[0] + '"]').empty();
                 nextIntg.append(DeviceContent(p, mat));
                 nextIntg.unbind().click(p, ExpandDetail(p));
                 for (iitg of mat.Integate) {
-                    loopNumber++;
                     nextIntg.append(CreateHTMLDIV(iitg));
                 }
             }
         } else if (SN0 != SS0 && SN1 == SS1) { // vertical
             var selectSlot = di.find('[' + prefix + '="' + usedSlot[1] + '"]');
+            var parentSelectSlot = selectSlot.parent();
+            parentSelectSlot.attr('class', 'used-slot');
             selectSlot.attr('rowspan', SN0 - SS0 + 1);
             for (let j = parentMaxRow; j >= -1; j--) {
-                loopNumber++;
                 if (j < SN0 && j >= SS0) {
+                    //
+                    var parentUsedSlot = di.find('[' + prefix + '="' + j + "," + k + '"]').parent();
+                    parentUsedSlot.attr('class', 'used-slot');
+                    var parentUsedSlotPlusOne = di.find('[' + prefix + '="' + (++j) + "," + k + '"]').parent();
+                    parentUsedSlotPlusOne.attr('class', 'used-slot');
+                    var parentUsedSlotDelOne = di.find('[' + prefix + '="' + (--j) + "," + k + '"]').parent();
+                    parentUsedSlotDelOne.attr('class', 'used-slot');
+                    //
                     di.find('[' + prefix + '="' + j + "," + SN1 + '"]').remove();
                     var nextIntg = di.find('[' + prefix + '="' + (j + 1) + "," + SN1 + '"]').empty();
                     nextIntg.append(DeviceContent(p, mat));
                     nextIntg.unbind().click(p, ExpandDetail(p));
                     for (iitg of mat.Integate) {
-                        loopNumber++;
                         nextIntg.append(CreateHTMLDIV(iitg));
                     }
                 }
             }
-        } else if (SN0 != SS0 && SN1 != SS1) { //horizontal && vertical 
+        } else if (SN0 != SS0 && SN1 != SS1) { //horizontal && vertical
             var selectSlot = di.find('[' + prefix + '="' + SN0 + "," + SS1 + '"]');
             selectSlot.attr('rowspan', SN0 - SS0 + 1);
             selectSlot.attr('colspan', SN1 - SS1 + 1);
             for (let j = SS0; j <= SN0; j++) {
-                loopNumber++;
+                // 
+                var parentUsedSlot = di.find('[' + prefix + '="' + j + "," + SS1 + '"]').parent();
+                parentUsedSlot.attr('class', 'used-slot');
+                var parentUsedSlotPlusOne = di.find('[' + prefix + '="' + (++j) + "," + SS1 + '"]').parent();
+                parentUsedSlotPlusOne.attr('class', 'used-slot');
+                var parentUsedSlotDelOne = di.find('[' + prefix + '="' + (--j) + "," + SS1 + '"]').parent();
+                parentUsedSlotDelOne.attr('class', 'used-slot');
+                //
                 for (let k = SS1; k <= SN1; k++) {
-                    loopNumber++;
                     if (j == SN0 && k == SS1) continue;
                     di.find('[' + prefix + '="' + j + "," + k + '"]').remove();
                     var nextIntg = selectSlot.empty();
                     nextIntg.append(DeviceContent(p, mat));
                     nextIntg.unbind().click(p, ExpandDetail(p));
                     for (iitg of mat.Integate) {
-                        loopNumber++;
                         nextIntg.append(CreateHTMLDIV(iitg));
                     }
                 }
@@ -696,12 +624,10 @@ function CreateDiscrete(p, di, prefix) {
         var usedSlot = p.Used_Slots.split(':');
         var slotLable = p.Slot_Label.split(':');
         for (po in usedSlot) {
-            loopNumber++;
             var selectSlot = di.find('[' + prefix + '="' + usedSlot[po] + '"]').empty();
             selectSlot.append(DeviceContent(p, mat, po));
             selectSlot.unbind().click(p, ExpandDetail(p));
             for (iitg of mat.Integate) {
-                loopNumber++;
                 selectSlot.append(CreateHTMLDIV(iitg));
             }
         }
